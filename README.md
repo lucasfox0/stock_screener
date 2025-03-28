@@ -2,11 +2,11 @@
 
 A Python app that fetches and displays basic stock data like price, P/E ratio, and dividend yield. Built using `yfinance`.
 
-## Features (Coming Soon)
+## Features
 
 - Enter a stock ticker (e.g., `AAPL`)
-- Fetch key metrics: price, P/E ratio, dividend yield, etc.
-- Recommended BUY, HOLD, or SELL
+- (Coming Soon) Fetch key metrics: price, P/E ratio, dividend yield, etc.
+- (Coming Soon) Recommended BUY, HOLD, or SELL
 
 ## Getting Started
 
