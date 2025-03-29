@@ -3,7 +3,7 @@ import json
 
 def main():
 
-    # Get input from user, if the input is not alphabetical or is empty then reprompt
+    # Prompt user for a stock sticker; ensure it's alphabetical and not empty
     while True: 
         ticker = input ("Enter a stock ticker: ").strip().upper()
     
@@ -12,11 +12,11 @@ def main():
         else: 
             break
 
-    # Get the data of the ticker using yfinance and store it in JSON format
+    # Fetch stock data using yfiance
     dat = yf.Ticker(ticker)
     info = dat.info
 
-    # Get information from API
+    # Extract key metrics from the stock info
     company = info.get("shortName", "N/A")
     price = info.get("currentPrice", "N/A")
     pe_ratio = info.get("trailingPE", "N/A")
@@ -25,7 +25,7 @@ def main():
     fiftytwo_week_high = info.get("fiftyTwoWeekHigh", "N/A")
     fiftytwo_week_low = info.get("fiftyTwoWeekLow", "N/A")
 
-    # Print information from API
+    # Display extracted information
     print(f"Ticker: {ticker}")
     print(f"Company: {company}")
     print(f"Price: ${price}")
@@ -35,7 +35,7 @@ def main():
     print(f"52-Week High: {fiftytwo_week_high}")
     print(f"52-Week Low: {fiftytwo_week_low}")
 
-
+    # Uncomment to see full JSON response from API
     # print(json.dumps(info, indent=2))
 
 
