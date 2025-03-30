@@ -1,6 +1,9 @@
 # Stock Screener 📈
 
-A Python app that fetches and displays basic stock data like price, P/E ratio, and dividend yield. Built using `yfinance`.
+A Python-based terminal app that fetches and analyzes key stock metrics like price, P/E ratio, dividend yield, and market cap. It also provides a basic BUY, HOLD, or SELL recommendation based on customizable logic.
+
+> 📦 **Status: Alpha**  
+> MVP complete. Now adding smarter screening logic, tuning by sector, and laying the groundwork for future quant features.
 
 ## Features
 
