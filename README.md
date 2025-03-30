@@ -4,9 +4,19 @@ A Python app that fetches and displays basic stock data like price, P/E ratio, a
 
 ## Features
 
-- Enter a stock ticker (e.g., `AAPL`)
-- Fetch key metrics: price, P/E ratio, dividend yield, etc.
-- (Coming Soon) Recommended BUY, HOLD, or SELL
+- ✅ Enter a stock ticker (e.g., `AAPL`)
+- ✅ Fetch and display stock metrics:
+  - Price
+  - P/E ratio
+  - Dividend yield
+  - Market cap
+  - 52-week high/low
+- ✅ Recommend BUY, HOLD, or SELL based on basic rules
+
+### Planned Features
+
+- 🧠 Tune P/E-based strategy by testing it across different industries/sectors
+- 📊 Add beta as a metric and include it in the recommendation logic
 
 ## Getting Started
 
