@@ -36,6 +36,8 @@ def main():
     # --- Extract key metrics from the stock info ---
     company = info.get("shortName", "N/A")
 
+    sector = info.get("sector")
+
     price = info.get("currentPrice", "N/A")
     price = f"{price:.2f}" if isinstance(price, (int, float)) else "N/A"
 
@@ -59,6 +61,7 @@ def main():
     # --- Display extracted information ---
     print(f"Ticker: {ticker}")
     print(f"Company: {company}")
+    print(f"Sector: {sector}")
     print(f"Price: ${price}")
     print(f"P/E Ratio: {pe_ratio}")
     print(f"Dividend Yield: {dividend_yield}")
