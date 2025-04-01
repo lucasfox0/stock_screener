@@ -20,23 +20,23 @@ def format_large_number(num):
 
 
 def main():
-    # Prompt user for a stock sticker; ensure it's alphabetical and not empty
+    # Prompt user for a stock ticker; ensure it's alphabetical and not empty
     while True: 
-        ticker = input ("Enter a stock ticker: ").strip().upper()
+        ticker = input("Enter a stock ticker: ").strip().upper()
     
         if not ticker.isalpha() or len(ticker) < 1:
             print("Invalid ticker. Please enter a valid stock symbol.\n") 
         else: 
             break
 
-    # Fetch stock data using yfiance
+    # Fetch stock data using yfinance
     dat = yf.Ticker(ticker)
     info = dat.info
 
     # --- Extract key metrics from the stock info ---
     company = info.get("shortName", "N/A")
 
-    sector = info.get("sector")
+    sector = info.get("sector", "N/A")
 
     price = info.get("currentPrice", "N/A")
     price = f"{price:.2f}" if isinstance(price, (int, float)) else "N/A"
@@ -47,6 +47,8 @@ def main():
     dividend_yield_val = info.get("dividendYield", "N/A")
     dividend_yield = f"{dividend_yield_val * 100:.2f}%" if isinstance(dividend_yield_val, (int, float)) else "N/A"
 
+    beta = info.get("beta", "N/A")
+
     market_cap = format_large_number(info.get("marketCap"))
    
     high_52w = info.get("fiftyTwoWeekHigh", "N/A")
@@ -55,32 +57,55 @@ def main():
     low_52w = info.get("fiftyTwoWeekLow", "N/A")
     low_52w = f"{low_52w:.2f}" if isinstance(low_52w, (int, float)) else "N/A"
 
-    # Hard coded industry average P/E (for MVP only)
-    industry_avg_pe = 20
-
     # --- Display extracted information ---
-    print(f"Ticker: {ticker}")
-    print(f"Company: {company}")
-    print(f"Sector: {sector}")
-    print(f"Price: ${price}")
-    print(f"P/E Ratio: {pe_ratio}")
+    print(f"\nTicker:         {ticker}")
+    print(f"Company:        {company}")
+    print(f"Sector:         {sector}")
+    print(f"Price:          ${price}")
+    print(f"P/E Ratio:      {pe_ratio}")
     print(f"Dividend Yield: {dividend_yield}")
-    print(f"Market Cap: {market_cap}")
-    print(f"52-Week High: {high_52w}")
-    print(f"52-Week Low: {low_52w}")
+    print(f"Beta:           {beta}")
+    print(f"Market Cap:     {market_cap}")
+    print(f"52-Week High:   {high_52w}")
+    print(f"52-Week Low:    {low_52w}")
 
-    # --- Display recommendation based on P/E ratio and dividend yield ---
+    # --- Display recommendation based on sector-aware logic ---
+    sector_pe_averages = {
+        "Consumer Defensive": 23.23,
+        "Utilities": 20.71,
+        "Financial Services": 18.01,
+        "Energy": 16.71
+    }
+
+    # Use P/E-based recommendation for mean-reverting sectors, otherwise use beta-based logic
     print(f"\n --- RECOMMENDATION ---")
-    if isinstance(pe_ratio_val, (int, float)) and isinstance(dividend_yield_val, (int, float)):
-        if pe_ratio_val < industry_avg_pe and dividend_yield_val > 0.01:
-            print("BUY")
-        elif pe_ratio_val > 30:
-            print("SELL")
-        else:
-            print("HOLD")
-    else:
-        print("Insufficent data to make recommendation.")
 
+    if sector in sector_pe_averages.keys():
+        avg_pe = sector_pe_averages.get(sector, 20)
+        if isinstance(pe_ratio_val, (int, float)):
+            print(f"(Based on sector-average P/E for {sector})")
+            if pe_ratio_val < avg_pe:
+                print("BUY")
+            elif pe_ratio_val > 30:
+                print("SELL")
+            else:
+                print("HOLD")
+        else:
+            print("Insufficient P/E data for recommendation.")
+    else:
+        if isinstance(beta, (int, float)):
+            print(f"(Based on beta strategy for non-mean-reverting sector {sector})")
+            if beta < 0.9:
+                print("BUY")
+            elif beta > 1.2:
+                print("SELL")
+            else:
+                print("HOLD")
+        else:
+            print("Insufficient beta data for recommendation.")
+
+
+    print("\n\n")
 
     # --- Uncomment to see full JSON response from API ---
     # print(json.dumps(info, indent=2))
