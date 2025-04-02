@@ -45,6 +45,19 @@
 - **Exit signal**: SELL or after N months
 - **HOLD** means hold position
 
+### Backtest Plan - pe_sector_adjusted (Energy)
+
+- Strategy: Buy if trailing P/E < 16.71 (sector average)
+- Sector: Energy
+- Universe: Only Energy stock from the S&P 500
+- Data source: yfinance
+- Test window: Past 5 years (or whatever is available)
+- Holding period: 30 days
+- Rebalancing frequency: Monthly
+- Positioning: Equal-weighted portfolio
+- No leverage, no shorting, no stop-loss
+- Evaluation: Sharpe ratio, average return, max drawdown
+
 ---
 
 ## 📣 Feedback from Friends
