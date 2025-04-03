@@ -1,69 +1,44 @@
-# 🧠 Notes & Research Log
+# Notes & Research Log
 
-## Thought Process
+## Strategy Summary
 
-- The app is now modular and prints clean, sector-aware recommendations.
-- P/E strategy is used **only in mean-reverting sectors**:
-  - Energy
-  - Utilities
-  - Consumer Defensive
-  - Financial Services
-- Beta strategy is used for all **non-mean-reverting sectors**:
-  - **BUY** if beta < 0.9
-  - **SELL** if beta > 1.2
-  - **HOLD** otherwise
-- Thresholds are based on general research, not yet backtested.
-- Using **trailing P/E** due to free data limitations.
-- Sector P/E averages were pulled from ChatGPT-generated tables and need to be backtested.
+- Modular app with sector-aware logic.
+- Uses trailing P/E in **mean-reverting sectors**:
+  - Energy, Utilities, Consumer Defensive, Financial Services
+- Uses beta strategy in all **other sectors**:
+  - BUY if beta < 0.9  
+  - SELL if beta > 1.2  
+  - HOLD otherwise
+- Thresholds based on basic research — not yet validated.
 
 ---
 
-## ❓ Questions to Figure Out
+## TODO (Short-Term)
 
-- Where can I get **forward P/E** or forward earnings estimates for free?
-- Do beta thresholds (0.9/1.2) work across different time periods and universes?
-- What’s the ideal **rebalancing frequency** (daily, monthly, quarterly)?
-- Should I **re-enter** a stock if it flips from SELL → BUY later?
-- Can I combine P/E and beta into a single signal in the future?
-
----
-
-## ✅ TODO (Short-Term)
-
-- [ ] Backtest P/E strategy by sector
-- [ ] Backtest beta strategy on non-mean-reverting sectors
+- [ ] Backtest P/E strategy by sector  
+- [ ] Backtest beta strategy on non-mean-reverting sectors  
 - [ ] Log results in `backtests/log.csv`
 
 ---
 
-## 🧪 Backtest Design Ideas
+## Backtest Plan – pe_sector_adjusted
 
-- **Universe**: Top ~100 stocks by market cap
-- **Test period**: 3–5 years (to smooth out noise)
-- **Frequency**: Monthly rebalance
-- **Entry signal**: BUY
-- **Exit signal**: SELL or after N months
-- **HOLD** means hold position
-
-### Backtest Plan - pe_sector_adjusted (Energy)
-
-- Strategy: Buy if trailing P/E < 16.71 (sector average)
-- Sector: Energy
-- Universe: Only Energy stock from the S&P 500
-- Data source: yfinance
-- Test window: Past 5 years (or whatever is available)
-- Holding period: 30 days
-- Rebalancing frequency: Monthly
-- Positioning: Equal-weighted portfolio
-- No leverage, no shorting, no stop-loss
-- Evaluation: Sharpe ratio, average return, max drawdown
+- Trigger: Buy if trailing P/E < sector average  
+- Sector: Energy  
+- Universe: S&P 500 Energy stocks  
+- Data: yfinance  
+- Test period: Past 5 years (if available)  
+- Rebalance: Monthly  
+- Holding period: 30 days  
+- Positioning: Equal-weighted, no leverage or shorting  
+- Metrics: Sharpe ratio, average return, max drawdown
 
 ---
 
-## 📣 Feedback from Friends
+## Feedback
 
-> "Combine fundamentals with quant. Read about Fama-French factors"
+> “Value isn’t in printing metrics — it’s in simulating and logging performance.”  
 
-> “Just printing metrics is a start — but value comes from what you **do** with the data. Simulate strategies, quantify performance, and log results.”
+> “P/E can punish growth stocks. Use forward P/E if possible — but great starting point.”  
 
-> “Trailing P/E isn’t ideal — growth stocks will look expensive. Try to use **forward P/E** if you can. But this is a solid foundation.”
+> “Blend fundamentals and quant. Research factor models like Fama-French.”
