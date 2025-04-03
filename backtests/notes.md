@@ -21,17 +21,38 @@
 
 ---
 
-## Backtest Plan – pe_sector_adjusted
+## Current Strategy Plan
 
-- Trigger: Buy if trailing P/E < sector average  
-- Sector: Energy  
-- Universe: S&P 500 Energy stocks  
-- Data: yfinance  
-- Test period: Past 5 years (if available)  
-- Rebalance: Monthly  
-- Holding period: 30 days  
-- Positioning: Equal-weighted, no leverage or shorting  
-- Metrics: Sharpe ratio, average return, max drawdown
+**Strategy:**  
+Buy S&P 500 Energy stocks if trailing P/E < 16.71.  
+Reevaluate portfolio **monthly**. Hold stocks if P/E < 16.71.  
+Sell if P/E rises above the threshold.
+
+**Entry Signal:**  
+- Trailing P/E < 16.71  
+- Check at the start of each month
+
+**Exit Signal:**  
+- Trailing P/E >= 16.71  
+- Check monthly
+
+**Rebalancing Frequency:**  
+- Monthly (time-based, not P/E crossover)
+
+**Universe:**  
+- Energy sector stocks from the S&P 500  
+- Will expand to broader Energy universe later
+
+**Holding Period:**  
+- Variable; depends on how long P/E stays below 16.71  
+- Minimum 1 month
+
+**Positioning:**  
+- Equal weight per stock  
+- Can enter same stock in multiple months if P/E stays below threshold
+
+**Goal:**  
+- Determine if P/E-based value screening outperforms a naive benchmark (e.g. equal-weighted Energy portfolio)
 
 ---
 
