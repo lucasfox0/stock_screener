@@ -50,8 +50,8 @@ def main():
     for ticker in tqdm(buy_list):
         try:
             hist = yf.Ticker(ticker).history(period="1y") # Get DataFrame from past year
-            todays_price =  info.iloc[-1]["Close"]
-            last_years_price = info.iloc[0]["Close"]
+            todays_price =  hist.iloc[-1]["Close"]
+            last_years_price = hist.iloc[0]["Close"]
 
             price_dict[ticker] = {
             "todays_price": float(todays_price),
