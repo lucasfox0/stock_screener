@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+from tqdm import tqdm
 
 """
 Strategy:
@@ -34,7 +35,7 @@ def main():
     buy_list = []
 
     # Loop through each ticker in energy_tickers and check the P/E value
-    for ticker in energy_tickers:
+    for ticker in tqdm(energy_tickers):
         try:
             info = yf.Ticker(ticker).info
             pe = info.get("trailingPE")
