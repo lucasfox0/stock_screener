@@ -1,65 +1,58 @@
-# Notes & Research Log
+## 2025-04-01
 
-## Strategy Summary
+**Current Status:**
+- Refactored logic into separate functions.
 
-- Modular app with sector-aware logic.
-- Uses trailing P/E in **mean-reverting sectors**:
-  - Energy, Utilities, Consumer Defensive, Financial Services
-- Uses beta strategy in all **other sectors**:
-  - BUY if beta < 0.9  
-  - SELL if beta > 1.2  
-  - HOLD otherwise
-- Thresholds based on basic research — not yet validated.
+**Next Steps:**
+- Start first backtest to see the effectiveness of strategies.
 
 ---
 
-## TODO (Short-Term)
+## 2025-03-31
 
-- [ ] Backtest P/E strategy by sector  
-- [ ] Backtest beta strategy on non-mean-reverting sectors  
-- [ ] Log results in `backtests/log.csv`
+**Current Status:**
+- Gives basic metrics and recommends either BUY/HOLD/SELL based on sector, then P/E or beta.
 
----
-
-## Current Strategy Plan
-
-**Strategy:**  
-Buy S&P 500 Energy stocks if trailing P/E < 16.71.  
-Reevaluate portfolio **monthly**. Hold stocks if P/E < 16.71.  
-Sell if P/E rises above the threshold.
-
-**Entry Signal:**  
-- Trailing P/E < 16.71  
-- Check at the start of each month
-
-**Exit Signal:**  
-- Trailing P/E >= 16.71  
-- Check monthly
-
-**Rebalancing Frequency:**  
-- Monthly (time-based, not P/E crossover)
-
-**Universe:**  
-- Energy sector stocks from the S&P 500  
-- Will expand to broader Energy universe later
-
-**Holding Period:**  
-- Variable; depends on how long P/E stays below 16.71  
-- Minimum 1 month
-
-**Positioning:**  
-- Equal weight per stock  
-- Can enter same stock in multiple months if P/E stays below threshold
-
-**Goal:**  
-- Determine if P/E-based value screening outperforms a naive benchmark (e.g. equal-weighted Energy portfolio)
+**Next Steps:**
+- Refactor code into more functions.
+- Start first backtest.
 
 ---
 
-## Feedback
+## 2025-03-29
 
-> “Value isn’t in printing metrics — it’s in simulating and logging performance.”  
+All that's left for MVP is giving a super basic buy/sell/hold recommendation.
+- Then I can add way more in-depth recommendations.
+- Recommend based off P/E & dividend yeild for MVP:
+* P/E ratio is below industry average AND dividend yield is above 1% (BUY)
+* P/E ratio is above 30 (SELL)
+* else (HOLD)
 
-> “P/E can punish growth stocks. Use forward P/E if possible — but great starting point.”  
+**Tomorrow:**
+- Finish MVP
+- Research how to make it "useful"
 
-> “Blend fundamentals and quant. Research factor models like Fama-French.”
+---
+
+## 2025-03-28
+
+Input: AAPL
+Output:
+  Ticker: AAPL
+  Company: Apple Inc.
+  Price: $174.50
+  PE Ratio: 28.4
+  Dividend Yield: 0.55%
+  Market Cap: $2.7T
+  52-Week-High: $199.62
+  52-Week-Low: $123.45
+
+  Is PE Ratio above industry average? Yes
+  Is Dividend Yield above 1%? No
+  Recommendation: HOLD
+
+1. Buy low P/E and sell high P/E
+2. See what industries this works best in
+3. Combine fundamentals w/ quant
+4. Buy low beta, sell high beta
+
