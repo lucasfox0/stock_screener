@@ -1,3 +1,24 @@
+## 2025-04-05
+
+My next steps are to find a place that offers historical P/E data (or just EPS data) so I can start a real backtest.
+
+---
+
+## 2025-04-02
+
+I finished my demo backtest:
+- Scraped energy tickers in the S&P 500 from Wikipedia
+- Pulled today's P/E ratios using yfinance
+- Built a buy list for stocks with P/E < 16.71
+- Pulled historical price data for those tickers
+- Calculated 1 year return = (todays_price - year_ago_price) / year_ago_price
+- Printed results and overall winrate and average return
+
+Didn't log this because it wasn't a real strategy or even backtest.
+This was more so just practice getting historical data and scraping.
+
+---
+
 ## 2025-04-01
 
 **Current Status:**
