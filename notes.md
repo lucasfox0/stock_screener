@@ -1,3 +1,9 @@
+## 2025-04-06
+
+Pulled EPS data from MacroTrends. Still need to refactor code by adding/deleting lines and adding error handling.
+
+---
+
 ## 2025-04-05
 
 My next steps are to find a place that offers historical P/E data (or just EPS data) so I can start a real backtest.
