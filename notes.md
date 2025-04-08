@@ -1,3 +1,17 @@
+## 2025-04-08
+
+Finished error handling and modularizing. Also added a function to get a url from any ticker so it isn't hardcoded. I added comments to every line in my code to ensure I understand it. Eventually I'd like to try and build it again from scratch. 
+
+Tomorrow: update requirements.txt, error handling incase of issue w/ url, remove the clarification comments, get EPS data for all tickers
+
+---
+
+## 2025-04-07
+
+All I did was delete a couple print statements. So tired. Refactor more tomorrow.
+
+---
+
 ## 2025-04-06
 
 Pulled EPS data from MacroTrends. Still need to refactor code by adding/deleting lines and adding error handling.
