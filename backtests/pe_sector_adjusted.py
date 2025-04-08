@@ -22,8 +22,6 @@ def main():
     soup = BeautifulSoup(response.text, "html.parser")
 
     tables = soup.find_all("table")
-    print(tables[1].prettify()[:1000])  # preview first 1000 characters
-
     eps_table = tables[1]
     rows = eps_table.find_all("tr")
 
@@ -36,7 +34,6 @@ def main():
             eps_str = cols[1].text.strip().replace("$", "")
             eps = float(eps_str)
 
-            print(date, eps)
             eps_data[date] = eps
 
     print(eps_data)
