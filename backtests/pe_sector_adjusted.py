@@ -1,6 +1,8 @@
 import requests
+import yfinance as yf
 from bs4 import BeautifulSoup   
 import pandas as pd
+import re
 
 def get_sector_tickers(sector):
     """Get tickers from a given GICS Sector from Wikipedia"""
@@ -11,10 +13,22 @@ def get_sector_tickers(sector):
     tickers = sp500_df[sp500_df["GICS Sector"] == f"{sector}"]["Symbol"].tolist() # Search the GICS Sector category for the desired sector, and when the specific sector is found, add that "Symbol"/ticker to the tickers list
     return tickers # Return the tickers list
 
+def build_macrotrends_url(ticker):
+    """Build the url used for scraping MacroTrends"""
+    short_name = yf.Ticker(ticker).info.get("shortName")
 
-def fetch_eps_data(ticker, shortName):
+    # Ensure that the short name actually exists
+    if not short_name:
+        print(f"Could not find shortName for {ticker}")
+        return None
+
+    slug = re.sub(r'[^a-z0-9]+', '-', short_name.lower()).strip('-')
+
+    return f"https://www.macrotrends.net/stocks/charts/{ticker}/{slug}/eps-earnings-per-share-diluted"
+
+
+def fetch_eps_data(ticker, url):
     """Get EPS data for a (temporarily hardcoded) url"""
-    url = f"https://www.macrotrends.net/stocks/charts/XOM/exxon/eps-earnings-per-share-diluted"
     try: 
         # Access the website with XOM data and find the EPS table
         response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}) # Get a response from the URL and then include headers that make it seem more like a human and less likely to be flagged for spam
@@ -48,8 +62,10 @@ def main():
     #   - EPS 
     #   - Historical adjusted closing price
     #   - For the past 5 years (starting April 2020, ending April 2025)
-    xom_url = "https://www.macrotrends.net/stocks/charts/XOM/exxon/eps-earnings-per-share-diluted"
-    eps_data = fetch_eps_data("XOM", xom_url)
+    
+    ticker = "XOM"
+    url = build_macrotrends_url(ticker)
+    eps_data = fetch_eps_data(ticker, url)
     print(eps_data)
 
 
