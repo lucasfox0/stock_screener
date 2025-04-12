@@ -7,11 +7,35 @@ import random
 import time
 from tqdm import tqdm
 import json
+from termcolor import colored
+import datetime
+import os
 
 # --- Constants
 WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-USER_AGENT = {"User-Agent": "Mozilla/5.0"}
-DELAY_RANGE = (60, 120)  # seconds
+USER_AGENTS = [
+    # Windows Chrome
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    
+    # Mac Safari
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
+
+    # Firefox Linux
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0",
+
+    # iPhone Safari
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+
+    # Android Chrome
+    "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.4896.127 Mobile Safari/537.36"
+]
+DELAY_RANGE = (60, 180)  # seconds
+ACCEPT_LANGUAGES = [
+    "en-US,en;q=0.9",
+    "en-GB,en;q=0.8",
+    "en;q=0.7",
+    "fr-FR,fr;q=0.9,en;q=0.8",
+]
 
 
 def get_sector_tickers(sector):
@@ -41,8 +65,13 @@ def build_macrotrends_url(ticker):
 def fetch_eps_data(ticker, url):
     """Get EPS data for a (temporarily hardcoded) url"""
     try: 
-        # Access the website with XOM data and find the EPS table
-        response = requests.get(url, headers=USER_AGENT)
+        # Access the website with ticker data and find the EPS table
+        headers = {
+            "User-Agent": random.choice(USER_AGENTS),
+            "Accept-Language": random.choice(ACCEPT_LANGUAGES)
+        }
+        print(f"Using {headers}") # for debugging
+        response = requests.get(url, headers=headers)
         response.raise_for_status() 
         soup = BeautifulSoup(response.text, "html.parser")
         tables = soup.find_all("table")
@@ -74,25 +103,63 @@ def collect_and_save_eps_data(output_path):
 
     # Scrape MacroTrends to find the EPS for each energy ticker 
     all_eps_data = {}
+    failed_tickers = []
     for ticker in tqdm(energy_tickers, desc="Scraping EPS"):
         print(f"\nStarting {ticker}...")
         url = build_macrotrends_url(ticker)
 
         if url is None:
+            print(colored(f"No URL built for {ticker}", "red"))
             continue # Skip this ticker if we couldn't build a URL
 
         eps_data = fetch_eps_data(ticker, url)
 
         if not eps_data:
             print(f"No EPS data for {ticker}, skipping...")
+            failed_tickers.append(ticker)
+            print(colored(f"Added {ticker} to failed list", "yellow"))
             continue
 
-        all_eps_data[ticker] = eps_data  # Save the EPS data under the ticker symbol
+        all_eps_data[ticker] = { # Save the EPS data under the ticker symbol
+            "eps": eps_data,
+            "meta": {
+                "scraped_at": datetime.datetime.now().isoformat(),
+                "source": "MacroTrends"
+                }
+            }
         delay = random.uniform(*DELAY_RANGE)
-        print(f"Finished {ticker} - sleeping {delay:.0f} seconds")
-        time.sleep(delay) # Wait 30-60 seconds before next request
+        print(colored(f"Finished {ticker} - sleeping {delay:.0f} seconds", "green"))
+        time.sleep(delay) # Wait 60-180 seconds before next request
+    
+    while failed_tickers:
+        for ticker in tqdm(failed_tickers[:], desc="Failed tickers:"):
+            url = build_macrotrends_url(ticker)
+            if url is None:
+                print(colored(f"No URL built for {ticker}", "red"))
+                continue # Skip this ticker if we couldn't build a URL
+
+            eps_data = fetch_eps_data(ticker, url)
+            if not eps_data:
+                print(f"No EPS data for {ticker}, skipping...")
+                print(colored(f"Added {ticker} to failed list", "yellow"))
+                continue
+
+            failed_tickers.remove(ticker)
+            all_eps_data[ticker] = { # Save the EPS data under the ticker symbol
+                "eps": eps_data,
+                "meta": {
+                    "scraped_at": datetime.datetime.now().isoformat(),
+                    "source": "MacroTrends"
+                    }
+                }
+            delay = random.uniform(*DELAY_RANGE)
+            print(colored(f"Finished {ticker} - sleeping {delay:.0f + 30} seconds", "green"))
+            time.sleep(delay + 30) # Wait 90-210 seconds before next request
+
 
     # Convert EPS dict to a JSON file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     with open(output_path, "w") as f:
         json.dump(all_eps_data, f, indent=2)
 
@@ -100,7 +167,9 @@ def collect_and_save_eps_data(output_path):
 
 
 def main():
-    collect_and_save_eps_data(output_path="data/eps_energy.json")
+    print(colored("Starting code...", "blue"))
+    collect_and_save_eps_data(output_path="../data/eps_energy.json")
+    print("✅ Code complete")
 
 if __name__ == "__main__":
     main()
