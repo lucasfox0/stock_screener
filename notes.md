@@ -1,3 +1,39 @@
+## 2025-04-12
+
+Currently trying to scrape with a while loop to run through all failed tickers over and over again. Might just want to try buying proxies. I implemented the failed ticker while loop myself but it defenitly needs to be refactored, preferably into one loop.
+
+It's hard to write a TODO because I just need to get this EPS data scraped and other things keep coming up while doing that.
+
+So today I want to refactor my loop and add meta data to my JSON to potentially help in the future.
+
+---
+
+## 2025-04-11
+
+Still trying to prevent being flagged. Going to add a longer timer and if that doesn't work I'll do something else.
+
+Starting to get a little too vibe codey... git restored to yesterday and going to start over tomorrow.
+
+The issue I'm running into is that I am being captchaed about half way through even with an aritrary delay and different browsers. I plan to fix this by just getting through as much as I can, then looping through the "failed tickers" over and over until I do not get captchaed.
+
+TODO:
+- Review code
+- Add different browsers
+- Longer delay
+- Make a list of failed that either are saved to JSON or get looped immediately after
+
+The code is making sense now. We just need to try browssers and longer delay. Then try stuff with failed list. I DONT NEED LLM FOR THIS.
+
+---
+
+## 2025-04-10
+
+All I did was remove redundant comments and started looping through tickers.
+
+Got flagged so we need to add proxies and randomness.
+
+---
+
 ## 2025-04-08
 
 Finished error handling and modularizing. Also added a function to get a url from any ticker so it isn't hardcoded. I added comments to every line in my code to ensure I understand it. Eventually I'd like to try and build it again from scratch. 
