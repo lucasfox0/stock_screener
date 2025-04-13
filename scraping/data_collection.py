@@ -1,6 +1,6 @@
 import requests
 import yfinance as yf
-from bs4 import BeautifulSoup   
+from bs4 import BeautifulSoup
 import pandas as pd
 import re
 import random
@@ -11,7 +11,7 @@ from termcolor import colored
 import datetime
 import os
 
-# --- Constants
+# --- Constants ---
 WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 USER_AGENTS = [
     # Windows Chrome
@@ -36,21 +36,18 @@ ACCEPT_LANGUAGES = [
 
 def get_sector_tickers(sector):
     """Get tickers from a given GICS Sector from Wikipedia"""
-    # Access Wikipedia's S&P 500 table and get tickers based on desired sector
-    sp500_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" # Assign Wikipedia's S&P 500 url to a variable for easier manipulation or changing
-    sp500_df = pd.read_html(sp500_url)[0] # Tell Pandas to read the html of the Wikipedias S&P 500 and grab the first table (which is the table for all stocks in the sp500)
+    sp500_df = pd.read_html(WIKI_URL)[0]
 
-    tickers = sp500_df[sp500_df["GICS Sector"] == f"{sector}"]["Symbol"].tolist() # Search the GICS Sector category for the desired sector, and when the specific sector is found, add that "Symbol"/ticker to the tickers list
-    return tickers # Return the tickers list
+    tickers = sp500_df[sp500_df["GICS Sector"] == f"{sector}"]["Symbol"].tolist()
+    return tickers
 
 
 def build_macrotrends_url(ticker):
     """Build the url used for scraping MacroTrends"""
+    # Get short name from yFinance
     short_name = yf.Ticker(ticker).info.get("shortName")
 
-    # Ensure that the short name actually exists
     if not short_name:
-        print(f"Could not find shortName for {ticker}")
         return None
 
     slug = re.sub(r'[^a-z0-9]+', '-', short_name.lower()).strip('-') # Replace any unconventional characters with dashes
@@ -59,10 +56,10 @@ def build_macrotrends_url(ticker):
 
 
 def fetch_eps_data(ticker, url):
-    """Get EPS data for a (temporarily hardcoded) url"""
-    try: 
+    """Get EPS data for a url"""
+    try:
         # Access the website with ticker data and find the EPS table
-        headers = {
+        headers = { # Human-like headers
             "User-Agent": random.choice(USER_AGENTS),
             "Accept-Language": random.choice(ACCEPT_LANGUAGES),
             "Accept-Encoding": "gzip, deflate, br",
@@ -72,21 +69,21 @@ def fetch_eps_data(ticker, url):
             "Upgrade-Insecure-Requests": "1"
         }
         response = requests.get(url, headers=headers)
-        response.raise_for_status() 
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         tables = soup.find_all("table")
         eps_table = tables[1] # EPS table
-        rows = eps_table.find_all("tr") 
+        rows = eps_table.find_all("tr")
 
         # Loop through the rows and columns to fill the eps data dictionary 
-        eps_data = {} 
+        eps_data = {}
         for row in rows[1:]:
-            cols = row.find_all("td") 
+            cols = row.find_all("td")
             if len(cols) >= 2:
-                date = cols[0].text.strip() 
-                eps_str = cols[1].text.strip().replace("$", "") 
-                eps = float(eps_str) 
-                eps_data[date] = eps 
+                date = cols[0].text.strip()
+                eps_str = cols[1].text.strip().replace("$", "")
+                eps = float(eps_str)
+                eps_data[date] = eps
 
         return eps_data
 
@@ -101,7 +98,6 @@ def scrape_ticker_eps(ticker, max_attempts=5):
     while attempts < max_attempts:
         url = build_macrotrends_url(ticker)
         if not url:
-            print(colored(f"No URL built for {ticker}", "red"))
             return None, f"No URL built for {ticker}"
         
         eps_data = fetch_eps_data(ticker, url)
@@ -118,12 +114,11 @@ def scrape_ticker_eps(ticker, max_attempts=5):
         attempts += 1
 
         # Apply a delay that increases with each attempt
-        print(colored(f"{attempts} try for {ticker}...", "yellow"))
-        time.sleep(random.uniform(*DELAY_RANGE) + attempts * 30)
+        delay = random.uniform(*DELAY_RANGE) + attempts * 30
+        print(colored(f"{attempts} try for {ticker} - sleeping {delay:.0f} seconds...", "yellow"))
+        time.sleep(delay)
         
     return None, f"Failed to fetch EPS for {ticker} after {max_attempts} attempts"
-
-
     
 
 def collect_and_save_eps_data(output_path):
