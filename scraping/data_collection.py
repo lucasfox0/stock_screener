@@ -25,7 +25,7 @@ USER_AGENTS = [
     # Android Chrome
     "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.4896.127 Mobile Safari/537.36"
 ]
-DELAY_RANGE = (60, 180)  # seconds
+DELAY_RANGE = (45, 90)  # seconds
 ACCEPT_LANGUAGES = [
     "en-US,en;q=0.9",
     "en-GB,en;q=0.8",
@@ -64,9 +64,13 @@ def fetch_eps_data(ticker, url):
         # Access the website with ticker data and find the EPS table
         headers = {
             "User-Agent": random.choice(USER_AGENTS),
-            "Accept-Language": random.choice(ACCEPT_LANGUAGES)
+            "Accept-Language": random.choice(ACCEPT_LANGUAGES),
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Referer": "https://www.google.com/",
+            "DNT": "1",  # Do Not Track
+            "Upgrade-Insecure-Requests": "1"
         }
-        print(f"Using {headers}") # for debugging
         response = requests.get(url, headers=headers)
         response.raise_for_status() 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -91,7 +95,7 @@ def fetch_eps_data(ticker, url):
         return {}
     
 
-def scrape_ticker_eps(ticker, max_attempts=3):
+def scrape_ticker_eps(ticker, max_attempts=5):
     """Attempt to scrape EPS data for a given ticker up to max_attempts"""
     attempts = 0
     while attempts < max_attempts:
@@ -106,7 +110,8 @@ def scrape_ticker_eps(ticker, max_attempts=3):
                 "eps": eps_data,
                 "meta": {
                     "scraped_at": datetime.datetime.now().isoformat(),
-                    "source": "MacroTrends"
+                    "source": "MacroTrends",
+                    "attempts": attempts
                 }
             }, None
         
@@ -130,7 +135,7 @@ def collect_and_save_eps_data(output_path):
     all_eps_data = {}
     failed_tickers_log = {}
 
-    for ticker in tqdm(energy_tickers, desc="Scraping EPS"):
+    for ticker in tqdm(energy_tickers[:5], desc="Scraping EPS"):
         print(f"\nStarting {ticker}...")
         data, error = scrape_ticker_eps(ticker)
 
