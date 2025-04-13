@@ -15,17 +15,13 @@ import os
 WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 USER_AGENTS = [
     # Windows Chrome
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36", 
     # Mac Safari
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
-
     # Firefox Linux
     "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0",
-
     # iPhone Safari
     "Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
-
     # Android Chrome
     "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.4896.127 Mobile Safari/537.36"
 ]
@@ -132,7 +128,7 @@ def collect_and_save_eps_data(output_path):
         time.sleep(delay) # Wait 60-180 seconds before next request
     
     while failed_tickers:
-        for ticker in tqdm(failed_tickers[:], desc="Failed tickers:"):
+        for ticker in tqdm(failed_tickers[:], desc="Failed tickers"):
             url = build_macrotrends_url(ticker)
             if url is None:
                 print(colored(f"No URL built for {ticker}", "red"))
@@ -153,13 +149,13 @@ def collect_and_save_eps_data(output_path):
                     }
                 }
             delay = random.uniform(*DELAY_RANGE)
-            print(colored(f"Finished {ticker} - sleeping {delay:.0f + 30} seconds", "green"))
+            print(colored(f"Finished {ticker} - sleeping {delay:.0f} seconds", "green"))
             time.sleep(delay + 30) # Wait 90-210 seconds before next request
 
 
     # Convert EPS dict to a JSON file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     with open(output_path, "w") as f:
         json.dump(all_eps_data, f, indent=2)
 
