@@ -91,67 +91,57 @@ def fetch_eps_data(ticker, url):
         return {}
     
 
-def collect_and_save_eps_data(output_path):
-    # --- Main scraper: loops through all tickers in a sector and saves EPS data to a JSON file. ---
+def scrape_ticker_eps(ticker, max_attempts=3):
+    """Attempt to scrape EPS data for a given ticker up to max_attempts"""
+    attempts = 0
+    while attempts < max_attempts:
+        url = build_macrotrends_url(ticker)
+        if not url:
+            print(colored(f"No URL built for {ticker}", "red"))
+            return None, f"No URL built for {ticker}"
+        
+        eps_data = fetch_eps_data(ticker, url)
+        if eps_data:
+            return {
+                "eps": eps_data,
+                "meta": {
+                    "scraped_at": datetime.datetime.now().isoformat(),
+                    "source": "MacroTrends"
+                }
+            }, None
+        
+        attempts += 1
 
+        # Apply a delay that increases with each attempt
+        print(colored(f"{attempts} try for {ticker}...", "yellow"))
+        time.sleep(random.uniform(*DELAY_RANGE) + attempts * 30)
+        
+    return None, f"Failed to fetch EPS for {ticker} after {max_attempts} attempts"
+
+
+    
+
+def collect_and_save_eps_data(output_path):
+    """Main scraper: loops through all tickers in a sector and saves EPS data to a JSON file """
     # Scrape list of Energy sector stocks from the S&P 500 using Wikipedia 
     energy_tickers = get_sector_tickers("Energy")
 
     # Scrape MacroTrends to find the EPS for each energy ticker 
     all_eps_data = {}
-    failed_tickers = []
+    failed_tickers_log = {}
+
     for ticker in tqdm(energy_tickers, desc="Scraping EPS"):
         print(f"\nStarting {ticker}...")
-        url = build_macrotrends_url(ticker)
+        data, error = scrape_ticker_eps(ticker)
 
-        if url is None:
-            print(colored(f"No URL built for {ticker}", "red"))
-            continue # Skip this ticker if we couldn't build a URL
-
-        eps_data = fetch_eps_data(ticker, url)
-
-        if not eps_data:
-            print(f"No EPS data for {ticker}, skipping...")
-            failed_tickers.append(ticker)
-            print(colored(f"Added {ticker} to failed list", "yellow"))
-            continue
-
-        all_eps_data[ticker] = { # Save the EPS data under the ticker symbol
-            "eps": eps_data,
-            "meta": {
-                "scraped_at": datetime.datetime.now().isoformat(),
-                "source": "MacroTrends"
-                }
-            }
-        delay = random.uniform(*DELAY_RANGE)
-        print(colored(f"Finished {ticker} - sleeping {delay:.0f} seconds", "green"))
-        time.sleep(delay) # Wait 60-180 seconds before next request
-    
-    while failed_tickers:
-        for ticker in tqdm(failed_tickers[:], desc="Failed tickers"):
-            url = build_macrotrends_url(ticker)
-            if url is None:
-                print(colored(f"No URL built for {ticker}", "red"))
-                continue # Skip this ticker if we couldn't build a URL
-
-            eps_data = fetch_eps_data(ticker, url)
-            if not eps_data:
-                print(f"No EPS data for {ticker}, skipping...")
-                print(colored(f"Added {ticker} to failed list", "yellow"))
-                continue
-
-            failed_tickers.remove(ticker)
-            all_eps_data[ticker] = { # Save the EPS data under the ticker symbol
-                "eps": eps_data,
-                "meta": {
-                    "scraped_at": datetime.datetime.now().isoformat(),
-                    "source": "MacroTrends"
-                    }
-                }
+        if data:
+            all_eps_data[ticker] = data
             delay = random.uniform(*DELAY_RANGE)
             print(colored(f"Finished {ticker} - sleeping {delay:.0f} seconds", "green"))
-            time.sleep(delay + 30) # Wait 90-210 seconds before next request
-
+            time.sleep(delay)
+        else:
+            print(colored(f"Error with {ticker}: {error}", "red"))
+            failed_tickers_log[ticker] = error
 
     # Convert EPS dict to a JSON file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -160,6 +150,12 @@ def collect_and_save_eps_data(output_path):
         json.dump(all_eps_data, f, indent=2)
 
     print(f"\nEPS data saved to {output_path}")
+
+    # If any tickers failed, display that here
+    if failed_tickers_log:
+        print(colored("The following tickers failed:", "red"))
+        for t, err in failed_tickers_log.items():
+            print(f"{t}: {err}")
 
 
 def main():
