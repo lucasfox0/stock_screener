@@ -10,10 +10,12 @@ pandas==2.2.3
 peewee==3.17.9
 platformdirs==4.3.7
 python-dateutil==2.9.0.post0
+python-dotenv==1.1.0
 pytz==2025.2
 requests==2.32.3
 six==1.17.0
 soupsieve==2.6
+termcolor==3.0.1
 tqdm==4.67.1
 typing_extensions==4.13.0
 tzdata==2025.2
