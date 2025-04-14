@@ -49,7 +49,8 @@ def get_sector_tickers(sector):
 def build_macrotrends_url(ticker):
     """Build the url used for scraping MacroTrends"""
     # Get short name from yFinance
-    short_name = yf.Ticker(ticker).info.get("shortName")
+    info = yf.Ticker(ticker).info
+    short_name = info.get("shortName") if info else None
 
     if not short_name:
         return None
@@ -115,7 +116,7 @@ def scrape_ticker_eps(ticker, max_attempts=5):
             }, None
         
 
-        # Apply a delay that increases exponetially with each attempt
+        # Apply a delay that increases exponentially with each attempt
         delay = min(random.uniform(*DELAY_RANGE) * (1.7 ** attempts), 300)
         print(colored(f"{attempts + 1} try for {ticker} - sleeping {delay:.0f} seconds...", "yellow"))
 
