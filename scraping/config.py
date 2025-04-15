@@ -4,6 +4,8 @@ Edit delays, user agents, and environment keys here.
 """
 
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 WIKI_URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 USER_AGENTS = [
