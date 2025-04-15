@@ -11,8 +11,6 @@ from termcolor import colored
 import datetime
 import os
 from config import WIKI_URL, USER_AGENTS, DELAY_RANGE, ACCEPT_LANGUAGES, SMARTPROXY_USERNAME, SMARTPROXY_PASSWORD, MAX_ATTEMPTS
-from dotenv import load_dotenv
-load_dotenv()
 
 
 def get_sector_tickers(sector):
@@ -27,7 +25,10 @@ def build_macrotrends_url(ticker):
     """Build the url used for scraping MacroTrends"""
     # Get short name from yFinance
     info = yf.Ticker(ticker).info
-    short_name = info.get("shortName") if info else None
+    try:
+        short_name = info.get("shortName")
+    except Exception:
+        short_name = None
 
     if not short_name:
         return None
@@ -53,6 +54,10 @@ def fetch_eps_data(ticker, url):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         tables = soup.find_all("table")
+
+        if len(tables) < 2:
+            raise ValueError("Expected EPS table not found. Likely CAPTCHA.")
+
         eps_table = tables[1] # EPS table
         rows = eps_table.find_all("tr")
 
@@ -74,7 +79,7 @@ def fetch_eps_data(ticker, url):
     
 
 def scrape_ticker_eps(ticker, max_attempts=MAX_ATTEMPTS):
-    """Attempt to scrape EPS data for a given ticker up to max_attempts"""
+    """Attempt to scrape EPS data for a given ticker up to MAX_ATTEMPTS"""
     attempts = 0
     while attempts < max_attempts:
         url = build_macrotrends_url(ticker)
@@ -143,7 +148,11 @@ def collect_and_save_eps_data(output_path):
 
 def main():
     print(colored("Starting code...", "blue"))
-    collect_and_save_eps_data(output_path="../data/eps_energy.json")
+
+    if not SMARTPROXY_USERNAME or not SMARTPROXY_PASSWORD:
+        raise Exception("Missing Smartproxy credentials")
+    else:
+        collect_and_save_eps_data(output_path="../data/eps_energy.json")
     print("✅ Code complete")
 
 if __name__ == "__main__":
