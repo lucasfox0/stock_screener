@@ -2,7 +2,7 @@ import requests
 import json
 from config import FMP_KEY, BASE_URL
 
-def get_energy_tickers():
+def get_tickers(sector):
     """Return a list of energy tickers"""
     endpoint = f"{BASE_URL}/v3/stock-screener"
     params = {
@@ -11,7 +11,7 @@ def get_energy_tickers():
         "marketCapMoreThan": 10_000_000_000, # 10B (Large Cap)
         "isEtf": "false",
         "isFund": "false",
-        "sector": "Energy",
+        "sector": sector,
         "apikey": FMP_KEY
     }
 
@@ -23,13 +23,13 @@ def get_energy_tickers():
         return None, f"Error fetching data: {e}"
     
     # Extract ticker symbols from each dictionary in the response
-    energy_tickers = [item["symbol"] for item in data]
+    tickers = [item["symbol"] for item in data]
 
-    return energy_tickers, None
+    return tickers, None
 
 
 def main():
-    energy_tickers, error = get_energy_tickers()
+    energy_tickers, error = get_tickers("Energy")
 
 if __name__ == "__main__":
     main()
