@@ -31,3 +31,4 @@ SMARTPROXY_USERNAME = os.getenv("SMARTPROXY_USERNAME", "")
 SMARTPROXY_PASSWORD = os.getenv("SMARTPROXY_PASSWORD", "")
 MAX_ATTEMPTS = 5
 FMP_KEY = os.getenv("FMP_KEY", "")
+BASE_URL = "https://financialmodelingprep.com/api"
