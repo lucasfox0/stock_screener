@@ -28,7 +28,8 @@ def get_tickers(sector):
 
     return tickers, None
 
-def get_historical_pe(tickers, output_path):
+# Old method for fetching historical P/E. Now used since P/E is being calculated manually
+def deprecated_get_historical_pe(tickers, output_path):
     """Save historical P/E data for a list of tickers to a JSON"""
     params = {
         "period": "quarter",
@@ -70,9 +71,6 @@ def get_historical_pe(tickers, output_path):
 
 def main():
     energy_tickers, error = get_tickers("Energy")
-
-    if energy_tickers:
-        get_historical_pe(energy_tickers, "../data/energy_pe.json")
 
 if __name__ == "__main__":
     main()
