@@ -67,11 +67,59 @@ def get_monthly_closing_price(ticker, output_path):
     with open(output_path, "w") as f:
         json.dump(monthly_close_dict, f, indent=2)
 
-    print(f"Montly close data saved to {output_path}")
+    return f"Montly close data saved to {output_path}", None
+
+def get_quarterly_eps(ticker, output_path):
+    """Get the quarterly EPS of a ticker"""
+    endpoint = f"{BASE_URL}/v3/income-statement-as-reported/{ticker}"
+    params = {
+        "period": "quarter",
+        "limit": 40,
+        "apikey": FMP_KEY
+    }
+
+    # Make a GET request to fetch data and parse the JSON
+    try:
+        response = requests.get(endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        return None, f"Error fetching data: {e}"
+    
+    eps_data = {}
+    for quarter in data:
+        date = quarter.get("date")
+        eps = quarter.get("earningspersharediluted")
+
+        if data and eps is not None:
+            eps_data[date] = round(eps, 2)
+        
+    # Nest EPS data inside another dict with tickers
+    eps_dict = {
+        ticker: eps_data
+    }
+
+    # Save eps dict to JSON
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, "w") as f:
+        json.dump(eps_dict, f, indent=2)
+
+    return f"Saved EPS dict to {output_path}", None
 
 
 def main():
-    monthly_close = get_monthly_closing_price("XOM", "../data/monthly_close.json")
+    # monthly_close_data, monthly_close_error = get_monthly_closing_price("XOM", "../data/monthly_close.json")
+    # if monthly_close_data:
+    #     print(monthly_close_data)
+    # else:
+    #     print(monthly_close_error)
+
+    quarterly_eps_data, quarterly_eps_error = get_quarterly_eps("XOM", "../data/quarterly_eps.json")
+    if quarterly_eps_data:
+        print(json.dumps(quarterly_eps_data, indent=2))
+    else:
+        print(quarterly_eps_error)
 
 if __name__ == "__main__":
     main()
