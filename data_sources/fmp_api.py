@@ -35,8 +35,8 @@ def get_monthly_closing_price(ticker, output_path):
     """Get the monthly closing price of a ticker"""
     endpoint = f"{BASE_URL}/v3/historical-price-full/{ticker}"
     params = {
-        "from": "2014-01-01",
-        "to": "2024-01-01",
+        "from": "2014-12-15",
+        "to": "2024-12-15",
         "apikey": FMP_KEY
     }
 
@@ -109,17 +109,17 @@ def get_quarterly_eps(ticker, output_path):
 
 
 def main():
-    # monthly_close_data, monthly_close_error = get_monthly_closing_price("XOM", "../data/monthly_close.json")
-    # if monthly_close_data:
-    #     print(monthly_close_data)
-    # else:
-    #     print(monthly_close_error)
-
-    quarterly_eps_data, quarterly_eps_error = get_quarterly_eps("XOM", "../data/quarterly_eps.json")
-    if quarterly_eps_data:
-        print(json.dumps(quarterly_eps_data, indent=2))
+    monthly_close_data, monthly_close_error = get_monthly_closing_price("XOM", "../data/monthly_close.json")
+    if monthly_close_data:
+        print(monthly_close_data)
     else:
-        print(quarterly_eps_error)
+        print(monthly_close_error)
+
+    # quarterly_eps_data, quarterly_eps_error = get_quarterly_eps("XOM", "../data/quarterly_eps.json")
+    # if quarterly_eps_data:
+    #     print(json.dumps(quarterly_eps_data, indent=2))
+    # else:
+    #     print(quarterly_eps_error)
 
 if __name__ == "__main__":
     main()
