@@ -92,11 +92,23 @@ def get_monthly_closing_price(ticker, output_path):
     df.sort_index(inplace=True)
     monthly_close = df["close"].resample("ME").last() # Group all rows by month and return the last value of each month
 
-    return monthly_close
+    monthly_close.index = monthly_close.index.strftime("%Y-%m-%d") # Convert the date index into strings
+
+    # Convert the pandas Series into a nested dictionary where the date is the key and monthly close is the value
+    monthly_close_dict = {
+        ticker: monthly_close.round(2).to_dict()
+    }
+
+    # Convert EPS dict to a JSON file
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, "w") as f:
+        json.dump(monthly_close_dict, f, indent=2)
+
+    print(f"Montly close data saved to {output_path}")
 
 def main():
-    monthly_close = get_monthly_closing_price("XOM", None)
-    print(monthly_close)
+    monthly_close = get_monthly_closing_price("XOM", "../data/monthly_close.json")
 
 if __name__ == "__main__":
     main()
