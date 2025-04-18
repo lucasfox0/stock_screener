@@ -99,11 +99,11 @@ def get_monthly_closing_price(ticker, output_path):
         ticker: monthly_close.round(2).to_dict()
     }
 
-    # Convert EPS dict to a JSON file
+    # Convert monthly close dict to a JSON file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     with open(output_path, "w") as f:
-        json.dump(monthly_close_dict, f, indent=2)
+        json.dump(monthly_close_dict, f, indent=4)
 
     print(f"Montly close data saved to {output_path}")
 
