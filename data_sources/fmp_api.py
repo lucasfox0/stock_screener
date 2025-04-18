@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import pandas as pd
 from config import FMP_KEY, BASE_URL
 
 def get_tickers(sector):
@@ -68,9 +69,34 @@ def deprecated_get_historical_pe(tickers, output_path):
 
     print(f"\nP/E data saved to {output_path}")
 
+def get_monthly_closing_price(ticker, output_path):
+    """Get the monthly closing price of a ticker"""
+    endpoint = f"{BASE_URL}/v3/historical-price-full/{ticker}"
+    params = {
+        "from": "2014-01-01",
+        "to": "2024-01-01",
+        "apikey": FMP_KEY
+    }
+
+    # Make GET request to fetch data and parse the JSON response
+    try:
+        response = requests.get(endpoint, params=params)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        return None, f"Error fetching data: {e}"
+    
+    df = pd.DataFrame(data["historical"]) # Convert list of dict into a pandas DataFrame
+    df["date"] = pd.to_datetime(df["date"]) # Convert dates (strings) into datetime objects
+    df.set_index("date", inplace=True) # Set the table index to the dates
+    df.sort_index(inplace=True)
+    monthly_close = df["close"].resample("ME").last() # Group all rows by month and return the last value of each month
+
+    return monthly_close
 
 def main():
-    energy_tickers, error = get_tickers("Energy")
+    monthly_close = get_monthly_closing_price("XOM", None)
+    print(monthly_close)
 
 if __name__ == "__main__":
     main()
