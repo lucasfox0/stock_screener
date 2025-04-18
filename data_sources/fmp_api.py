@@ -108,18 +108,70 @@ def get_quarterly_eps(ticker, output_path):
     return f"Saved EPS dict to {output_path}", None
 
 
+def calculate_monthly_pe(ticker, output_path):
+    """Calculate the monthly P/E given monthly close price and quarterly EPS"""
+    # Load close data and eps data
+    with open("../data/monthly_close.json") as f:
+        close_data = json.load(f)[ticker]
+    with open("../data/quarterly_eps.json") as f:
+        eps_data = json.load(f)[ticker]
+
+
+    # Convert close data and eps data to pandas.Series, where the date is datetime and sorted chronologically
+    close_series = pd.Series(close_data)
+    close_series.index = pd.to_datetime(close_series.index)
+    close_series = close_series.sort_index()
+
+    eps_series = pd.Series(eps_data)
+    eps_series.index = pd.to_datetime(eps_series.index)
+    eps_series = eps_series.sort_index()
+
+    # Initalize an empty dict to store P/E values
+    pe_data = {}
+
+    for date in close_series.index: # Lopp through each row(or date) in the monthly closing price index
+        valid_eps_dates = eps_series.index[eps_series.index <= date] # I believe this is getting a list of all the valid eps rows that are either less than or equal to the date. for example if the date is 2016-07-1, this would return something like 2015 12-01, 2015, 9-01... 2014... etc
+        if not valid_eps_dates.empty: # If THERE ARE a list or dates that are less than or equal to the date
+            latest_eps_date = valid_eps_dates[-1] # Use the last eps data in that list (closest to our date)
+            eps = eps_series[latest_eps_date] # save the eps value
+
+            if eps != 0: 
+                pe_ratio = close_series[date] / eps # Divide the the close by the eps to get PE
+                pe_data[date.strftime("%Y-%m-%d")] = round(pe_ratio, 2) # Add to the pe data dict under the date, converted to a string, and the pe ratio as a value rounded to 2 decimals
+
+    pe_dict = {
+        ticker: pe_data
+    }
+    
+    # Convert the P/E dictionary into JSON and save
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, "w") as f:
+        json.dump(pe_dict, f, indent=2)
+
+    return f"Saved P/E data to {output_path}", None
+
+
+
+
 def main():
-    monthly_close_data, monthly_close_error = get_monthly_closing_price("XOM", "../data/monthly_close.json")
-    if monthly_close_data:
-        print(monthly_close_data)
-    else:
-        print(monthly_close_error)
+    # monthly_close_data, monthly_close_error = get_monthly_closing_price("XOM", "../data/monthly_close.json")
+    # if monthly_close_data:
+    #     print(monthly_close_data)
+    # else:
+    #     print(monthly_close_error)
 
     # quarterly_eps_data, quarterly_eps_error = get_quarterly_eps("XOM", "../data/quarterly_eps.json")
     # if quarterly_eps_data:
     #     print(json.dumps(quarterly_eps_data, indent=2))
     # else:
     #     print(quarterly_eps_error)
+
+    pe, error = calculate_monthly_pe("XOM", "../data/pe.json")
+    if pe:
+        print(pe)
+    else:
+        print(error)
 
 if __name__ == "__main__":
     main()
