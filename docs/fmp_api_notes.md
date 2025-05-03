@@ -11,7 +11,7 @@ Base URL: https://financialmodelingprep.com/api/
 ## Data Requirements
 - Tickers in a specific sector
 - 5+ year historical P/E for the tickers
-	- If P/E is unavailable then need EPS and price from past 5+ years
+	- quarterly eps and monthly closing price -> calculate monthly P/E
 
 ---
 
