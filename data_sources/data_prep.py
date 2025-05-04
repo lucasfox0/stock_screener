@@ -39,34 +39,39 @@ def get_tickers(sector, output_path):
     return f"Large cap {sector} tickers saved to {output_path}", None
 
 
-def get_monthly_closing_price(ticker, output_path):
+def get_monthly_closing_price(tickers, output_path):
     """Get the monthly closing price of a ticker"""
-    endpoint = f"{BASE_URL}/v3/historical-price-full/{ticker}"
     params = {
         "from": "2014-12-15",
         "to": "2024-12-15",
         "apikey": FMP_KEY
     }
 
-    try:
-        response = requests.get(endpoint, params=params)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        return None, f"Error fetching data: {e}"
-    
-    df = pd.DataFrame(data["historical"]) # Convert list of dict into a pandas DataFrame
-    df["date"] = pd.to_datetime(df["date"]) # Convert dates (strings) into datetime objects
-    df.set_index("date", inplace=True) # Set the table index to the dates
-    df.sort_index(inplace=True)
-    monthly_close = df["close"].resample("ME").last() # Group all rows by month and return the last value of each month
+    monthly_close_dict = {}
+    for ticker in tickers:
+        endpoint = f"{BASE_URL}/v3/historical-price-full/{ticker}"
+        
+        try:
+            response = requests.get(endpoint, params=params)
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            return None, f"Error fetching data: {e}"
+        
+        if "historical" not in data:
+            print(f"Warning: No historical data for {ticker}")
+            continue
+        
+        df = pd.DataFrame(data["historical"]) # Convert list of dict into a pandas DataFrame
+        df["date"] = pd.to_datetime(df["date"]) # Convert dates (strings) into datetime objects
+        df.set_index("date", inplace=True) # Set the table index to the dates
+        df.sort_index(inplace=True)
+        monthly_close = df["close"].resample("ME").last() # Group all rows by month and return the last value of each month
 
-    monthly_close.index = monthly_close.index.strftime("%Y-%m-%d") # Convert the date index into strings
+        monthly_close.index = monthly_close.index.strftime("%Y-%m-%d") # Convert the date index into strings
 
-    # Convert the pandas Series into a nested dictionary where the date is the key and monthly close is the value
-    monthly_close_dict = {
-        ticker: monthly_close.round(2).to_dict()
-    }
+        # Convert the pandas Series into a nested dictionary where the date is the key and monthly close is the value
+        monthly_close_dict[ticker] = monthly_close.round(2).to_dict()
 
     # Convert monthly close dict to a JSON file
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -74,6 +79,7 @@ def get_monthly_closing_price(ticker, output_path):
         json.dump(monthly_close_dict, f, indent=2)
 
     return f"Montly close data saved to {output_path}", None
+
 
 def get_quarterly_eps(ticker, output_path):
     """Get the quarterly EPS of a ticker"""
@@ -154,12 +160,20 @@ def calculate_monthly_pe(ticker, output_path):
 
 def main():
     sector = "Energy"
-    
-    data, err = get_tickers(sector, f"../data/large_cap_{sector}_tickers.json")
-    if data:
-        print(data)
-    else:
-        print(err)
+    with open(f"../data/large_cap_{sector}_tickers.json") as f:
+        tickers = json.load(f)
+
+    # --- UNCOMMENT WHAT YOU NEED ---
+
+    # --- GET TICKERS FUNCTION ---
+    # data, err = get_tickers(sector, f"../data/large_cap_{sector}_tickers.json")
+    # print(data) if data else print(err)
+
+    # --- GET MONTHLY CLOSING PRICE FUNCTION ---
+    data, err = get_monthly_closing_price(tickers, "../data/monthly_close.json")
+    print(data) if data else print(err)
+
+
 
 if __name__ == "__main__":
     main()
