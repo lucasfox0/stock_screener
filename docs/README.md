@@ -1,45 +1,29 @@
 # Stock Screener 📈
 
-A Python-based terminal app that fetches and displays stock data using `yfinance`. It provides a sector-aware BUY/HOLD/SELL recommendation based on either P/E ratio or beta, depending on which strategy is more appropriate for the sector.
-
-
-## Demo
-
-![Stock Screener Demo](demo.png)
+A Python-based stock analysis and backtesting app using the **Financial Modeling Prep (FMP) API**.  
+It collects large-cap ticker data, calculates monthly P/E ratios, and runs a simple sector-aware backtest to simulate investment performance over time.
 
 ## Features
+- Pull large-cap tickers by sector from the FMP API
+- Download monthly closing prices and quarterly EPS data
+- Calculate monthly P/E ratios for each ticker
+- Backtest a P/E-based trading strategy:
+	- Buy if P/E < sector average
+	- Track portfolio performance over time
+- Calculate portfolio metrics:
+	- CAGR
+	- Sharpe
+	- Max Drawdown
 
-- Enter a stock ticker (e.g., `AAPL`)
-- Fetch and display stock metrics:
-  - Company name
-  - Sector
-  - Price
-  - P/E ratio
-  - Dividend yield
-  - Beta
-  - Market cap
-  - 52-week high/low
-- Recommend BUY, HOLD, or SELL based on:
-  - **P/E ratio** (for mean-reverting sectors)
-  - **Beta** (for all other sectors)
+## Project Structure
 
-## Strategy Summary
+| File           | Use                                                 |
+| -------------- | --------------------------------------------------- |
+| `data_prep.py` | Download tickers, prices, EPS, calculate P/E ratios |
+| `backtest.py`  | Run backtest, calculate performance metrics         |
+| `config.py`    | API keys and base URL                               |
 
-| Sector Type           | Strategy Used    | Logic                                                           |
-|-----------------------|------------------|-----------------------------------------------------------------|
-| Mean-Reverting Sectors| P/E Ratio        | BUY if P/E < sector average, SELL if P/E > 30, else HOLD        |
-| Other Sectors         | Beta             | BUY if beta < 0.9, SELL if beta > 1.2, else HOLD                |
-
-📌 *Mean-reverting sectors include: Consumer Defensive, Utilities, Financial Services, and Energy*
-
-## Getting Started
-
-### Requirements
-
-- Python 3.9+
-- `yfinance` package
-
-### Setup
+## Setup
 
 1. Clone this repo:
 
@@ -61,8 +45,17 @@ A Python-based terminal app that fetches and displays stock data using `yfinance
     pip install -r requirements.txt
     ```
 
-4. Run the app:
+4. Add your FMP API key in `config.py`
 
-    ```bash
-    python app.py
-    ```
+## How to Run
+
+1. Prepare the data:
+```bash
+	python data_prep.py
+```
+Uncomment the function you want to run (get tickers, prices, EPS, P/E)
+
+2. Run the backtest:
+```bash
+	python backtest.py
+```
