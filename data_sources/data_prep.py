@@ -81,33 +81,37 @@ def get_monthly_closing_price(tickers, output_path):
     return f"Montly close data saved to {output_path}", None
 
 
-def get_quarterly_eps(ticker, output_path):
+def get_quarterly_eps(tickers, output_path):
     """Get the quarterly EPS of a ticker"""
-    endpoint = f"{BASE_URL}/v3/income-statement-as-reported/{ticker}"
     params = {
         "period": "quarter",
         "limit": 40,
         "apikey": FMP_KEY
     }
 
-    try:
-        response = requests.get(endpoint, params=params)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        return None, f"Error fetching data: {e}"
+    eps_dict = {}
+    for ticker in tickers:
+        endpoint = f"{BASE_URL}/v3/income-statement-as-reported/{ticker}"
     
-    eps_data = {}
-    for quarter in data:
-        date = quarter.get("date")
-        eps = quarter.get("earningspersharediluted")
+        try:
+            response = requests.get(endpoint, params=params)
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            return None, f"Error fetching data: {e}"
+        
+        eps_data = {}
+        for quarter in data:
+            date = quarter.get("date")
+            eps = quarter.get("earningspersharediluted")
 
-        if data and eps is not None:
-            eps_data[date] = round(eps, 2)
+            if data and eps is not None:
+                eps_data[date] = round(eps, 2)
 
-    eps_dict = {
-        ticker: eps_data
-    }
+        if eps_data:
+            eps_dict[ticker] = eps_data
+        else: 
+            print(f"No EPS data for {ticker}")
 
     # Save eps dict to JSON
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -170,7 +174,11 @@ def main():
     # print(data) if data else print(err)
 
     # --- GET MONTHLY CLOSING PRICE FUNCTION ---
-    data, err = get_monthly_closing_price(tickers, "../data/monthly_close.json")
+    # data, err = get_monthly_closing_price(tickers, "../data/monthly_close.json")
+    # print(data) if data else print(err)
+
+    # --- GET QUARTERLY EPS FUNCTION ---
+    data, err = get_quarterly_eps(tickers, "../data/quarterly_eps.json")
     print(data) if data else print(err)
 
 
