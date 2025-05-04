@@ -121,38 +121,48 @@ def get_quarterly_eps(tickers, output_path):
     return f"Saved EPS dict to {output_path}", None
 
 
-def calculate_monthly_pe(ticker, output_path):
+def calculate_monthly_pe(tickers, output_path):
     """Calculate the monthly P/E given monthly close price and quarterly EPS"""
     # Load close data and eps data
     with open("../data/monthly_close.json") as f:
-        close_data = json.load(f)[ticker]
+        close_all = json.load(f)
     with open("../data/quarterly_eps.json") as f:
-        eps_data = json.load(f)[ticker]
+        eps_all = json.load(f)
 
-    # Convert close data and eps data to pandas.Series, where the date is datetime and sorted chronologically
-    close_series = pd.Series(close_data)
-    close_series.index = pd.to_datetime(close_series.index)
-    close_series = close_series.sort_index()
+    pe_dict = {}
+    for ticker in tickers:
+        if ticker not in close_all or ticker not in eps_all:
+            print(f"Missing close or EPS data for {ticker}")
+            continue
+            
+        close_data = close_all[ticker]
+        eps_data = eps_all[ticker]
 
-    eps_series = pd.Series(eps_data)
-    eps_series.index = pd.to_datetime(eps_series.index)
-    eps_series = eps_series.sort_index()
+        # Convert close data and eps data to pandas.Series, where the date is datetime and sorted chronologically
+        close_series = pd.Series(close_data)
+        close_series.index = pd.to_datetime(close_series.index)
+        close_series = close_series.sort_index()
 
-    # Initalize an empty dict to store P/E values
-    pe_data = {}
-    for date in close_series.index:
-        valid_eps_dates = eps_series.index[eps_series.index <= date]
-        if not valid_eps_dates.empty:
-            latest_eps_date = valid_eps_dates[-1] 
-            eps = eps_series[latest_eps_date]
+        eps_series = pd.Series(eps_data)
+        eps_series.index = pd.to_datetime(eps_series.index)
+        eps_series = eps_series.sort_index()
 
-            if eps != 0: 
-                pe_ratio = close_series[date] / eps 
-                pe_data[date.strftime("%Y-%m-%d")] = round(pe_ratio, 2) 
+        # Initalize an empty dict to store P/E values
+        pe_data = {}
+        for date in close_series.index:
+            valid_eps_dates = eps_series.index[eps_series.index <= date]
+            if not valid_eps_dates.empty:
+                latest_eps_date = valid_eps_dates[-1] 
+                eps = eps_series[latest_eps_date]
 
-    pe_dict = {
-        ticker: pe_data
-    }
+                if eps != 0: 
+                    pe_ratio = close_series[date] / eps 
+                    pe_data[date.strftime("%Y-%m-%d")] = round(pe_ratio, 2) 
+
+        if pe_data:
+            pe_dict[ticker] = pe_data
+        else:
+            print(f"No P/E data calculated for {ticker}")
     
     # Convert the P/E dictionary into JSON and save
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -178,7 +188,11 @@ def main():
     # print(data) if data else print(err)
 
     # --- GET QUARTERLY EPS FUNCTION ---
-    data, err = get_quarterly_eps(tickers, "../data/quarterly_eps.json")
+    # data, err = get_quarterly_eps(tickers, "../data/quarterly_eps.json")
+    # print(data) if data else print(err)
+
+    # --- CALCULATE MONTHLY PE FUNCTION ---
+    data, err = calculate_monthly_pe(tickers, "../data/monthly_pe.json")
     print(data) if data else print(err)
 
 
