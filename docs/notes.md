@@ -1,3 +1,5 @@
+gonna go FUCKING CRAZY on the implement-fmp branch today
+
 ## 2025-04-12
 
 Currently trying to scrape with a while loop to run through all failed tickers over and over again. Might just want to try buying proxies. I implemented the failed ticker while loop myself but it defenitly needs to be refactored, preferably into one loop.
