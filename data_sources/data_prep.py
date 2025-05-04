@@ -2,11 +2,7 @@ import requests
 import json
 import os
 import pandas as pd
-import numpy as np
 from config import FMP_KEY, BASE_URL
-
-
-# CHECK FOR UNUSED LIBS ^^^
 
 def get_tickers(sector, output_path):
     """Return a list of large cap ticker symbols for a specified sector"""
@@ -105,7 +101,7 @@ def get_quarterly_eps(tickers, output_path):
             date = quarter.get("date")
             eps = quarter.get("earningspersharediluted")
 
-            if data and eps is not None:
+            if eps is not None:
                 eps_data[date] = round(eps, 2)
 
         if eps_data:
@@ -192,8 +188,8 @@ def main():
     # print(data) if data else print(err)
 
     # --- CALCULATE MONTHLY PE FUNCTION ---
-    data, err = calculate_monthly_pe(tickers, "../data/monthly_pe.json")
-    print(data) if data else print(err)
+    # data, err = calculate_monthly_pe(tickers, "../data/monthly_pe.json")
+    # print(data) if data else print(err)
 
 
 
