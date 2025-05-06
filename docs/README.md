@@ -15,6 +15,11 @@ It collects large-cap ticker data, calculates monthly P/E ratios, and runs a sim
 	- Sharpe
 	- Max Drawdown
 
+**Equity Curve**  
+![equity_curve.png](equity_curve.png)  
+> *Proof‑of‑concept P/E‑spread strategy underperforms a simple buy‑and‑hold.  
+> Next steps: integrate momentum filters, optimize rebalance frequency, and implement dynamic position sizing.*
+
 ## Project Structure
 
 | File           | Use                                                 |
