@@ -2,6 +2,7 @@ import json
 import os
 import pandas as pd
 import numpy as np
+import csv
 
 def backtest(pe_all, sector_avg_pe, close_all):
     # Initalize portfolio value and monthly returns
@@ -86,8 +87,17 @@ def main():
     with open(close_path) as f:
         close_all = json.load(f)
     
-    portfolio = backtest(pe_all, sector_avg_pe, close_all, sector)
+    portfolio = backtest(pe_all, sector_avg_pe, close_all)
     calculate_metrics(portfolio)
+
+    # Export to CSV
+    with open("../data/monthly_returns.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["month", "portfolio_value"])
+        for month, val in sorted(portfolio.items()):
+            writer.writerow([month, val])
+    print("monthly_returns.csv written")
+
 
 if __name__ == "__main__":
     main()
